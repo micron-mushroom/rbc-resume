@@ -1,0 +1,6 @@
+target/
+ml/.env
+ml/.converter
+ml/.ipynb_checkpoints
+**/__pycache__
+*.gz

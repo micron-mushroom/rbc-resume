@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$title$</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet"> 
+
+    <style>
+        body {
+            margin: 0px;
+            font-family: 'Source Code Pro', monospace;
+        }
+    </style>
+</head>
+<body>
+    <noscript>
+        Note: I had a bit of fun with the resume. Unfortunately it will not display unless javascript is
+        able to execute on this page. If possible I would like for you to see what I have done in full,
+        but it is not possible for me to know what kind of environment this pages is going to be opened in.
+
+        If you could open this up in a modern browser on a computer (consult IT first) that would be great,
+        otherwise, have a nice day!
+    </noscript>
+    $body$
+    <script>
+        // Maybe change the mime to json
+        const modelURI = "data:application/json;base64,{{target/model/model.b64}}";
+        const weightsURI = "data:application/octet-stream;base64,{{target/model/weights.b64}}";
+
+        var modelWeights;
+        var modelJson;
+
+
+// Assuming `modelJson` is your JSON object and `weightsBuffer` is your ArrayBuffer
+
+
+        Promise.all([fetch(weightsURI), fetch(modelURI)])
+            .then(function(resp) {
+                return Promise.all([resp[0].arrayBuffer(), resp[1].json()]);
+            })
+            .then(function(data) {
+                modelWeights = data[0];
+                modelJson = data[1];
+                //const model = tf.loadGraphModelSync([modelJson, modelWeights]);
+                var modelArtifacts = {
+                  modelTopology: modelJson.modelTopology,
+                  weightSpecs: modelJson.weightsManifest[0].weights,
+                  weightData: modelWeights,
+                  format: modelJson.format,
+                  generatedBy: modelJson.generatedBy,
+                  convertedBy: modelJson.convertedBy,
+                    userDefinedMetadata: modelJson.userDefinedMetadata,
+                };
+
+                tf.loadGraphModel(tf.io.fromMemory(modelArtifacts)).then(function() {
+                    console.log("Loaded");
+
+                })
+            })
+
+        // const model = tf.loadGraphModelSync([modelURI, modelWeights]);
+        //const vocabsize = 66;
+        // Each of tf.layers accepts a weights parameter.
+        //const model = tf.sequential();
+        //model.add(tf.layers.embedding({inputDim: vocabsize, outputDim: 256}));
+        //model.add(tf.layers.gru({units: 390, return_sequences: true, return_state: true}));
+        //model.add(tf.layers.dense({units: vocabsize}));
+   </script>
+</body>
+</html>
